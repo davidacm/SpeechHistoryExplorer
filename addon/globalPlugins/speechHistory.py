@@ -87,6 +87,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	script_nextString.__doc__ = _('Review the next item in NVDA\'s speech history.')
 	script_nextString.category = SCRCAT_SPEECH
 
+	def script_showHistorial(self, gesture):
+		gui.mainFrame.prePopup()
+		HistoryDialog(gui.mainFrame, [self.getSequenceText(k) for k in self._history]).Show()
+		gui.mainFrame.postPopup()
+
+	# Translators: Documentation string for show in a dialog all recent items spoken by NVDA.
+	script_showHistorial.__doc__ = _('Opens a dialog showing all most recent items spoken by NVDA')
+	script_showHistorial.category = SCRCAT_SPEECH
+
 	def terminate(self, *args, **kwargs):
 		super().terminate(*args, **kwargs)
 		if BUILD_YEAR >= 2021:
@@ -109,17 +118,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def getSequenceText(self, sequence):
 		return speechViewer.SPEECH_ITEM_SEPARATOR.join([x for x in sequence if isinstance(x, str)])
 
-	def script_showHistorial(self, gesture):
-		gui.mainFrame.prePopup()
-		HistoryDialog(gui.mainFrame, [self.getSequenceText(k) for k in self._history]).Show()
-		gui.mainFrame.postPopup()
-
 
 	__gestures = {
-		"kb:f12":"copyLast",
-		"kb:shift+f11":"prevString",
-		"kb:shift+f12":"nextString",
-		"kb:nvda+control+f12":"showHistorial",
+		"kb:nvda+control+f12":"copyLast",
+		"kb:nvda+shift+f11":"prevString",
+		"kb:nvda+shift+f12":"nextString",
+		"kb:nvda+alt+f12":"showHistorial",
 	}
 
 
@@ -293,10 +297,12 @@ class HistoryDialog(
 	def onCopy(self,evt):
 		t = self.currentTextElement.GetValue()
 		if t:
-			api.copyToClip(t)
+			if api.copyToClip(t):
+				tones.beep(1500, 120)
 
 	def onCopyAll(self, evt):
 		t = ""
 		for k in self.searchHistory: t+= k+"\n"
 		if t:
-			api.copyToClip(t)
+			if api.copyToClip(t):
+				tones.beep(1500, 120)
