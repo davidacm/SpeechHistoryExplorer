@@ -89,7 +89,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	def script_showHistorial(self, gesture):
 		gui.mainFrame.prePopup()
-		HistoryDialog(gui.mainFrame, [self.getSequenceText(k) for k in self._history]).Show()
+		HistoryDialog(gui.mainFrame, self).Show()
 		gui.mainFrame.postPopup()
 
 	# Translators: Documentation string for show in a dialog all recent items spoken by NVDA.
@@ -117,6 +117,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	def getSequenceText(self, sequence):
 		return speechViewer.SPEECH_ITEM_SEPARATOR.join([x for x in sequence if isinstance(x, str)])
+
+	def clearHistory(self):
+		self._history.clear()
+		self.history_pos = 0
 
 
 	__gestures = {
@@ -171,27 +175,30 @@ class HistoryDialog(
 			return super(HistoryDialog, cls).__new__(cls, *args, **kwargs)
 		return instance
 
-	def __init__(self, parent, history):
+	def __init__(self, parent, addon):
 		if HistoryDialog._instance() is not None:
 			return
 		HistoryDialog._instance = weakref.ref(self)
 		# Translators: The title of the history elements Dialog
-		title = _("Speech histori elements")
+		title = _("Speech history items")
 		super().__init__(
 			parent,
 			title=title,
 			style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER | wx.MAXIMIZE_BOX,
 		)
+		# hte add-on instance
+		self.addon = addon
 		# the original speech history messages list.
-		self.history = history
+		self.history = None
 		# the results of a search, initially equals to history
-		self.searchHistory = history
+		self.searchHistory = None
 		# indexes of search, to save the selected item in a specific search.
 		self.searches = {"": 0}
 		# the current search, initially "".
 		self.curSearch = ""
 
 		szMain = guiHelper.BoxSizerHelper(self, sizer=wx.BoxSizer(wx.VERTICAL))
+		szCurrent = guiHelper.BoxSizerHelper(self, sizer=wx.BoxSizer(wx.HORIZONTAL))
 		szBottom = guiHelper.BoxSizerHelper(self, sizer=wx.BoxSizer(wx.HORIZONTAL))
 
 		# Translators: the label for the search text field in the speech history add-on.
@@ -200,6 +207,7 @@ class HistoryDialog(
 			style =wx.TE_PROCESS_ENTER
 		)
 		self.searchTextFiel.Bind(wx.EVT_TEXT_ENTER, self.onSearch)
+		self.searchTextFiel.Bind(wx.EVT_KILL_FOCUS, self.onSearch)
 
 		# Translators: the label for the history elements list in the speech history add-on.
 		entriesLabel = _("History list")
@@ -212,7 +220,7 @@ class HistoryDialog(
 		szMain.addItem(
 			self.historyList,
 			flag=wx.EXPAND,
-			proportion=1,
+			proportion=4
 		)
 		# This list consists of only one column.
 		# The provided column header is just a placeholder, as it is hidden due to the wx.LC_NO_HEADER style flag.
@@ -220,10 +228,20 @@ class HistoryDialog(
 		self.historyList.Bind(wx.EVT_LIST_ITEM_FOCUSED, self.onListItemSelected)
 
 		# a multiline text field containing the text from the current selected element.
-		self.currentTextElement = szMain.addItem(
+		self.currentTextElement = szCurrent.addItem(
 			wx.TextCtrl(self, style =wx.TE_MULTILINE|wx.TE_READONLY),
 			flag=wx.EXPAND,
 			proportion=1
+		)
+
+		# Translators: the label for the copy button in the speech history add-on.
+		self.copyButton = szCurrent.addItem(wx.Button(self, label=_("&Copy item")), proportion=0)
+		self.copyButton.Bind(wx.EVT_BUTTON, self.onCopy)
+		szMain.addItem(
+			szCurrent.sizer,
+			border=guiHelper.BORDER_FOR_DIALOGS,
+			flag = wx.EXPAND,
+			proportion=1,
 		)
 
 		szMain.addItem(
@@ -232,13 +250,17 @@ class HistoryDialog(
 			flag=wx.ALL | wx.EXPAND
 		)
 
-		# Translators: the label for the copy button in the speech history add-on.
-		self.copyButton = szBottom.addItem(wx.Button(self, label=_("&Copy item")))
-		self.copyButton.Bind(wx.EVT_BUTTON, self.onCopy)
-
 		# Translators: the label for the copy all button in the speech history add-on. This is based on the current search.
 		self.copyAllButton = szBottom.addItem(wx.Button(self, label=_("Copy &all")))
 		self.copyAllButton.Bind(wx.EVT_BUTTON, self.onCopyAll)
+
+		# Translators: the label for the clear history button in the speech history add-on. This button clean all items in the historial, both in the dialog and in the add-on.
+		self.clearHistoryButton = szBottom.addItem(wx.Button(self, label=_("C&lean history")))
+		self.clearHistoryButton.Bind(wx.EVT_BUTTON, self.onClear)
+
+		# Translators: the label for the refresh history button in the speech history add-on. This button updates the list item with the new history elements.
+		self.refreshButton = szBottom.addItem(wx.Button(self, label=_("&Refresh history")))
+		self.refreshButton.Bind(wx.EVT_BUTTON, self.onRefresh)
 
 		# Translators: The label of a button to close the speech history dialog.
 		closeButton = wx.Button(self, label=_("C&lose"), id=wx.ID_CLOSE)
@@ -256,7 +278,7 @@ class HistoryDialog(
 		szMain = szMain.sizer
 		szMain.Fit(self)
 		self.SetSizer(szMain)
-		self.doSearch()
+		self.updateHistory()
 
 		self.SetMinSize(szMain.GetMinSize())
 		# Historical initial size, result of L{self.historyList} being (550, 350)
@@ -266,15 +288,9 @@ class HistoryDialog(
 		self.CentreOnScreen()
 		self.historyList.SetFocus()
 
-	def onListItemSelected(self, evt):
-		index=evt.GetIndex()
-		self.currentTextElement.SetValue(self.history[index])
-
-	def onSearch(self, evt):
-		t = self.searchTextFiel.GetValue().lower()
-		self.searches[self.curSearch] = self.historyList.GetFirstSelected()
-		self.curSearch = t
-		self.doSearch(t)
+	def updateHistory(self):
+		self.history = [self.addon.getSequenceText(k) for k in self.addon._history]
+		self.doSearch(self.curSearch)
 
 	def doSearch(self, text=""):
 		if not text:
@@ -282,6 +298,7 @@ class HistoryDialog(
 		else:
 			self.searchHistory = [k for k in self.searchHistory if text in k.lower()]
 		self.historyList.DeleteAllItems()
+		self.currentTextElement.SetValue("")
 		for k in self.searchHistory: self.historyList.Append((k[0:100],))
 		if len(self.searchHistory) >0:
 			if text not in self.searches:
@@ -289,6 +306,18 @@ class HistoryDialog(
 			index = self.searches[text]
 			self.historyList.Select(index, on=1)
 			self.historyList.SetItemState(index,wx.LIST_STATE_FOCUSED,wx.LIST_STATE_FOCUSED)
+
+	def onListItemSelected(self, evt):
+		index=evt.GetIndex()
+		self.currentTextElement.SetValue(self.searchHistory[index])
+
+	def onSearch(self, evt):
+		t = self.searchTextFiel.GetValue().lower()
+		self.searches[self.curSearch] = self.historyList.GetFirstSelected()
+		if t == self.curSearch: return
+		self.curSearch = t
+		self.doSearch(t)
+
 
 	def onClose(self,evt):
 		self.DestroyChildren()
@@ -306,3 +335,11 @@ class HistoryDialog(
 		if t:
 			if api.copyToClip(t):
 				tones.beep(1500, 120)
+
+	def onClear(self, evt):
+		self.addon.clearHistory()
+		self.searches = {"":0}
+		self.updateHistory()
+
+	def onRefresh(self, evt):
+		self.updateHistory()

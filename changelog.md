@@ -1,7 +1,9 @@
-## Changes for 2022.1-dev ##
-added feature to show a list of speech history elements. This list can be shown with NVDA + control + f12. This dialog allows the user to copy a specific element, or copy the entire historial.
-Updated manifest to add compatibility with NVDA 2022.1.
-updated readme
-internal folder reestructuring
-added automatic build with scons
-added github workflows to automatic packaging on tag.
+## Changes for 2022.1.2-dev ##
+## Changes for speech history dialog:
+
+* now the search is executed when the field search loses focus. E.G, by pressing tab key. You still can press enter if you want.
+* added a button to clear the entire history in the dialog and in the global add-on.
+* added a button to refresh the history.
+* some gui redesigns.
+* fix, now the text field that shows the current item, is properly asociated and is empty if no one item is focused.
+* updated readme and some code GUI strings.

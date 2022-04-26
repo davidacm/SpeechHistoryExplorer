@@ -1,7 +1,7 @@
 # NVDA Speech History
 
 This is an updated version of the Clip Copy add-on for NVDA, initially created by Tyler Spivey in 2012.
-The keystrokes were updated because the original keys could present conflicts with other applications, since very common keys were used in the original add-on, E.G. f12.
+The keystrokes were updated because the original keys could present conflicts with other applications, since very common keys were used in the original add-on, E.G, f12.
 
 ## features:
 
@@ -11,8 +11,8 @@ The keystrokes were updated because the original keys could present conflicts wi
 
 ## Usage.
 	
-	* review the most recent items spoken by NVDA: press NVDA + shift + f11 (previows item) or NVDA + shift + f12 (next item).
-	* Copy the last item read by NVDA, or the current reviewed item: NVDA + shift + f12.
+	* Review the most recent items spoken by NVDA: press NVDA + shift + f11 (previous item) or NVDA + shift + f12 (next item).
+	* Copy the last item read by NVDA, or the current reviewed item: NVDA + control + f12.
 	* Show a dialog with the current most recent items spoken by NVDA: NVDA + alt + f12
 
 ### Speech history elements.
