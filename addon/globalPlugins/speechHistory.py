@@ -196,6 +196,8 @@ class HistoryDialog(
 		self.searches = {"": 0}
 		# the current search, initially "".
 		self.curSearch = ""
+		# the indexes of items selected.
+		self.selection = set()
 
 		szMain = guiHelper.BoxSizerHelper(self, sizer=wx.BoxSizer(wx.VERTICAL))
 		szCurrent = guiHelper.BoxSizerHelper(self, sizer=wx.BoxSizer(wx.HORIZONTAL))
@@ -214,7 +216,7 @@ class HistoryDialog(
 		self.historyList = nvdaControls.AutoWidthColumnListCtrl(
 			parent=self,
 			autoSizeColumn=1,
-			style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.LC_NO_HEADER
+			style=wx.LC_REPORT|wx.LC_NO_HEADER
 			)
 		
 		szMain.addItem(
@@ -225,7 +227,8 @@ class HistoryDialog(
 		# This list consists of only one column.
 		# The provided column header is just a placeholder, as it is hidden due to the wx.LC_NO_HEADER style flag.
 		self.historyList.InsertColumn(0, entriesLabel)
-		self.historyList.Bind(wx.EVT_LIST_ITEM_FOCUSED, self.onListItemSelected)
+		self.historyList.Bind(wx.EVT_LIST_ITEM_SELECTED, self.onSelect)
+		self.historyList.Bind(wx.EVT_LIST_ITEM_DESELECTED, self.onDeselect)
 
 		# a multiline text field containing the text from the current selected element.
 		self.currentTextElement = szCurrent.addItem(
@@ -289,10 +292,12 @@ class HistoryDialog(
 		self.historyList.SetFocus()
 
 	def updateHistory(self):
+		self.selection = set()
 		self.history = [self.addon.getSequenceText(k) for k in self.addon._history]
 		self.doSearch(self.curSearch)
 
 	def doSearch(self, text=""):
+		self.selection = set()
 		if not text:
 			self.searchHistory = self.history
 		else:
@@ -301,23 +306,28 @@ class HistoryDialog(
 		self.currentTextElement.SetValue("")
 		for k in self.searchHistory: self.historyList.Append((k[0:100],))
 		if len(self.searchHistory) >0:
-			if text not in self.searches:
-				self.searches[text] = 0
-			index = self.searches[text]
+			index = self.searches.get(text, 0)
 			self.historyList.Select(index, on=1)
 			self.historyList.SetItemState(index,wx.LIST_STATE_FOCUSED,wx.LIST_STATE_FOCUSED)
 
-	def onListItemSelected(self, evt):
-		index=evt.GetIndex()
-		self.currentTextElement.SetValue(self.searchHistory[index])
+	def updateSelection(self):
+		self.currentTextElement.SetValue(self.itemsToString(sorted(self.selection)))
+
+	def itemsToString(self, items):
+		s = ""
+		for k in items:
+			s += self.searchHistory[k] +"\n"
+		if s: s= s[0:-1]
+		return s
 
 	def onSearch(self, evt):
 		t = self.searchTextFiel.GetValue().lower()
-		self.searches[self.curSearch] = self.historyList.GetFirstSelected()
 		if t == self.curSearch: return
+		index = self.historyList.GetFocusedItem()
+		if index < 0: index = 0
+		self.searches[self.curSearch] = index
 		self.curSearch = t
 		self.doSearch(t)
-
 
 	def onClose(self,evt):
 		self.DestroyChildren()
@@ -330,11 +340,9 @@ class HistoryDialog(
 				tones.beep(1500, 120)
 
 	def onCopyAll(self, evt):
-		t = ""
-		for k in self.searchHistory: t+= k+"\n"
-		if t:
-			if api.copyToClip(t):
-				tones.beep(1500, 120)
+		t = self.itemsToString(range(0, len(self.searchHistory)))
+		if t and api.copyToClip(t):
+			tones.beep(1500, 120)
 
 	def onClear(self, evt):
 		self.addon.clearHistory()
@@ -343,3 +351,13 @@ class HistoryDialog(
 
 	def onRefresh(self, evt):
 		self.updateHistory()
+
+	def onSelect(self, evt):
+		index=evt.GetIndex()
+		self.selection.add(index)
+		self.updateSelection()
+
+	def onDeselect(self, evt):
+		index=evt.GetIndex()
+		self.selection.remove(index)
+		self.updateSelection()
