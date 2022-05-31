@@ -69,7 +69,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_prevString(self, gesture):
 		self.history_pos += 1
 		if self.history_pos > len(self._history) - 1:
-			tones.beep(200, 100)
+			tones.beep(220, 100, 100, 0)
 			self.history_pos -= 1
 		self.oldSpeak(self._history[self.history_pos])
 	# Translators: Documentation string for previous speech history item script
@@ -79,7 +79,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_nextString(self, gesture):
 		self.history_pos -= 1
 		if self.history_pos < 0:
-			tones.beep(200, 100)
+			tones.beep(220, 100, 0, 100)
 			self.history_pos += 1
 
 		self.oldSpeak(self._history[self.history_pos])
