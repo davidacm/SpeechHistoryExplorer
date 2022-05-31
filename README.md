@@ -1,7 +1,7 @@
-# NVDA Speech History
+# NVDA Speech History Explorer
 
-This is an updated version of the Clip Copy add-on for NVDA, initially created by Tyler Spivey in 2012.
-The keystrokes were updated because the original keys could present conflicts with other applications, since very common keys were used in the original add-on, E.G, f12.
+This is a fork of the speech history add-on for NVDA, initially created by Tyler Spivey in 2012 and mantained by James Scholes. This add-on adds some features.
+Also, The keystrokes were updated because the original keys could present conflicts with other applications, since very common keys were used in the original add-on, E.G, f12.
 
 ## features:
 

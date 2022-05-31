@@ -1,37 +1,27 @@
-# NVDA Add-on: Speech History
-# Copyright (C) 2012 Tyler Spivey
+# NVDA Add-on: Speech History Explorer
+# Copyright (C) 2022 David CM
 # Copyright (C) 2015-2021 James Scholes
+# Copyright (C) 2012 Tyler Spivey
+
 # This add-on is free software, licensed under the terms of the GNU General Public License (version 2).
 # See the file LICENSE for more details.
 
+import addonHandler, api, config, globalPluginHandler, gui, speech, speechViewer, tones, versionInfo, weakref, wx
 from collections import deque
-import weakref
-import wx
-
-import addonHandler
-import api
-import config
 from eventHandler import FocusLossCancellableSpeechCommand
-from globalCommands import SCRCAT_SPEECH
-import globalPluginHandler
-import gui
-from gui import guiHelper
-from gui import nvdaControls
+from gui import guiHelper, nvdaControls
 from gui.dpiScalingHelper import DpiScalingHelperMixin, DpiScalingHelperMixinWithoutInit
-
 from queueHandler import eventQueue, queueFunction
-import speech
-import speechViewer
-import tones
-import versionInfo
-
+from scriptHandler import script
 
 addonHandler.initTranslation()
 
 BUILD_YEAR = getattr(versionInfo, 'version_year', 2021)
 
-
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
+	# Translators: script category for add-on gestures.
+	scriptCategory = _("Speech History Explorer")
+
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		confspec = {
@@ -39,10 +29,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			'trimWhitespaceFromStart': 'boolean(default=false)',
 			'trimWhitespaceFromEnd': 'boolean(default=false)',
 		}
-		config.conf.spec['speechHistory'] = confspec
-		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(SpeechHistorySettingsPanel)
+		config.conf.spec['speechHistoryExplorer'] = confspec
+		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(speechHistoryExplorerSettingsPanel)
 
-		self._history = deque(maxlen=config.conf['speechHistory']['maxHistoryLength'])
+		self._history = deque(maxlen=config.conf['speechHistoryExplorer']['maxHistoryLength'])
 		self._patch()
 
 	def _patch(self):
@@ -52,49 +42,54 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		else:
 			self.oldSpeak = speech.speak
 			speech.speak = self.mySpeak
-
+	
+	@script(
+		# Translators: Documentation string for copy currently selected speech history Explorer item script
+		_('Copy the currently selected speech history Explorer item to the clipboard, which by default will be the most recently spoken text by NVDA.'),
+		gesture = "kb:nvda+control+f12"
+	)
 	def script_copyLast(self, gesture):
 		text = self.getSequenceText(self._history[self.history_pos])
-		if config.conf['speechHistory']['trimWhitespaceFromStart']:
+		if config.conf['speechHistoryExplorer']['trimWhitespaceFromStart']:
 			text = text.lstrip()
-		if config.conf['speechHistory']['trimWhitespaceFromEnd']:
+		if config.conf['speechHistoryExplorer']['trimWhitespaceFromEnd']:
 			text = text.rstrip()
 		if api.copyToClip(text):
 			tones.beep(1500, 120)
 
-	# Translators: Documentation string for copy currently selected speech history item script
-	script_copyLast.__doc__ = _('Copy the currently selected speech history item to the clipboard, which by default will be the most recently spoken text by NVDA.')
-	script_copyLast.category = SCRCAT_SPEECH
-
+	@script(
+		# Translators: Documentation string for previous speech history Explorer item script
+		_('Review the previous item in NVDA\'s speech history.'),
+		gesture = "kb:nvda+shift+f11"
+	)
 	def script_prevString(self, gesture):
 		self.history_pos += 1
 		if self.history_pos > len(self._history) - 1:
 			tones.beep(220, 100, 100, 0)
 			self.history_pos -= 1
 		self.oldSpeak(self._history[self.history_pos])
-	# Translators: Documentation string for previous speech history item script
-	script_prevString.__doc__ = _('Review the previous item in NVDA\'s speech history.')
-	script_prevString.category = SCRCAT_SPEECH
 
+	@script(
+		# Translators: Documentation string for next speech history Explorer item script
+		_('Review the next item in NVDA\'s speech history.'),
+		gesture = "kb:nvda+shift+f12"
+	)
 	def script_nextString(self, gesture):
 		self.history_pos -= 1
 		if self.history_pos < 0:
 			tones.beep(220, 100, 0, 100)
 			self.history_pos += 1
-
 		self.oldSpeak(self._history[self.history_pos])
-	# Translators: Documentation string for next speech history item script
-	script_nextString.__doc__ = _('Review the next item in NVDA\'s speech history.')
-	script_nextString.category = SCRCAT_SPEECH
 
+	@script(
+		# Translators: Documentation string for show in a dialog all recent items spoken by NVDA.
+		_('Opens a dialog showing all most recent items spoken by NVDA'),
+		gesture = "kb:nvda+alt+f12"
+	)
 	def script_showHistorial(self, gesture):
 		gui.mainFrame.prePopup()
 		HistoryDialog(gui.mainFrame, self).Show()
 		gui.mainFrame.postPopup()
-
-	# Translators: Documentation string for show in a dialog all recent items spoken by NVDA.
-	script_showHistorial.__doc__ = _('Opens a dialog showing all most recent items spoken by NVDA')
-	script_showHistorial.category = SCRCAT_SPEECH
 
 	def terminate(self, *args, **kwargs):
 		super().terminate(*args, **kwargs)
@@ -102,7 +97,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			speech.speech.speak = self.oldSpeak
 		else:
 			speech.speak = self.oldSpeak
-		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.remove(SpeechHistorySettingsPanel)
+		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.remove(speechHistoryExplorerSettingsPanel)
 
 	def append_to_history(self, seq):
 		seq = [command for command in seq if not isinstance(command, FocusLossCancellableSpeechCommand)]
@@ -123,35 +118,26 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.history_pos = 0
 
 
-	__gestures = {
-		"kb:nvda+control+f12":"copyLast",
-		"kb:nvda+shift+f11":"prevString",
-		"kb:nvda+shift+f12":"nextString",
-		"kb:nvda+alt+f12":"showHistorial",
-	}
-
-
-class SpeechHistorySettingsPanel(gui.SettingsPanel):
-	# Translators: the label/title for the Speech History settings panel.
-	title = _('Speech History')
+class speechHistoryExplorerSettingsPanel(gui.SettingsPanel):
+	# Translators: the label/title for the Speech History Explorer settings panel.
+	title = _('Speech History Explorer')
 
 	def makeSettings(self, settingsSizer):
 		helper = gui.guiHelper.BoxSizerHelper(self, sizer=settingsSizer)
 		# Translators: the label for the preference to choose the maximum number of stored history entries
 		maxHistoryLengthLabelText = _('&Maximum number of history entries (requires NVDA restart to take effect)')
-		self.maxHistoryLengthEdit = helper.addLabeledControl(maxHistoryLengthLabelText, nvdaControls.SelectOnFocusSpinCtrl, min=1, max=5000, initial=config.conf['speechHistory']['maxHistoryLength'])
+		self.maxHistoryLengthEdit = helper.addLabeledControl(maxHistoryLengthLabelText, nvdaControls.SelectOnFocusSpinCtrl, min=1, max=5000, initial=config.conf['speechHistoryExplorer']['maxHistoryLength'])
 		# Translators: the label for the preference to trim whitespace from the start of text
 		self.trimWhitespaceFromStartCB = helper.addItem(wx.CheckBox(self, label=_('Trim whitespace from &start when copying text')))
-		self.trimWhitespaceFromStartCB.SetValue(config.conf['speechHistory']['trimWhitespaceFromStart'])
+		self.trimWhitespaceFromStartCB.SetValue(config.conf['speechHistoryExplorer']['trimWhitespaceFromStart'])
 		# Translators: the label for the preference to trim whitespace from the end of text
 		self.trimWhitespaceFromEndCB = helper.addItem(wx.CheckBox(self, label=_('Trim whitespace from &end when copying text')))
-		self.trimWhitespaceFromEndCB.SetValue(config.conf['speechHistory']['trimWhitespaceFromEnd'])
+		self.trimWhitespaceFromEndCB.SetValue(config.conf['speechHistoryExplorer']['trimWhitespaceFromEnd'])
 
 	def onSave(self):
-		config.conf['speechHistory']['maxHistoryLength'] = self.maxHistoryLengthEdit.GetValue()
-		config.conf['speechHistory']['trimWhitespaceFromStart'] = self.trimWhitespaceFromStartCB.GetValue()
-		config.conf['speechHistory']['trimWhitespaceFromEnd'] = self.trimWhitespaceFromEndCB.GetValue()
-
+		config.conf['speechHistoryExplorer']['maxHistoryLength'] = self.maxHistoryLengthEdit.GetValue()
+		config.conf['speechHistoryExplorer']['trimWhitespaceFromStart'] = self.trimWhitespaceFromStartCB.GetValue()
+		config.conf['speechHistoryExplorer']['trimWhitespaceFromEnd'] = self.trimWhitespaceFromEndCB.GetValue()
 
 
 class HistoryDialog(
@@ -167,7 +153,7 @@ class HistoryDialog(
 		"""
 		return None
 
-	helpId = "SpeechHistoryElementsList"
+	helpId = "speechHistoryExplorerElementsList"
 
 	def __new__(cls, *args, **kwargs):
 		instance = HistoryDialog._instance()
@@ -203,7 +189,7 @@ class HistoryDialog(
 		szCurrent = guiHelper.BoxSizerHelper(self, sizer=wx.BoxSizer(wx.HORIZONTAL))
 		szBottom = guiHelper.BoxSizerHelper(self, sizer=wx.BoxSizer(wx.HORIZONTAL))
 
-		# Translators: the label for the search text field in the speech history add-on.
+		# Translators: the label for the search text field in the speech history Explorer add-on.
 		self.searchTextFiel = szMain.addLabeledControl(_("&Search"),
 			wx.TextCtrl,
 			style =wx.TE_PROCESS_ENTER
@@ -211,7 +197,7 @@ class HistoryDialog(
 		self.searchTextFiel.Bind(wx.EVT_TEXT_ENTER, self.onSearch)
 		self.searchTextFiel.Bind(wx.EVT_KILL_FOCUS, self.onSearch)
 
-		# Translators: the label for the history elements list in the speech history add-on.
+		# Translators: the label for the history elements list in the speech history Explorer add-on.
 		entriesLabel = _("History list")
 		self.historyList = nvdaControls.AutoWidthColumnListCtrl(
 			parent=self,
@@ -237,7 +223,7 @@ class HistoryDialog(
 			proportion=1
 		)
 
-		# Translators: the label for the copy button in the speech history add-on.
+		# Translators: the label for the copy button in the speech history Explorer add-on.
 		self.copyButton = szCurrent.addItem(wx.Button(self, label=_("&Copy item")), proportion=0)
 		self.copyButton.Bind(wx.EVT_BUTTON, self.onCopy)
 		szMain.addItem(
@@ -253,15 +239,15 @@ class HistoryDialog(
 			flag=wx.ALL | wx.EXPAND
 		)
 
-		# Translators: the label for the copy all button in the speech history add-on. This is based on the current search.
+		# Translators: the label for the copy all button in the speech history Explorer add-on. This is based on the current search.
 		self.copyAllButton = szBottom.addItem(wx.Button(self, label=_("Copy &all")))
 		self.copyAllButton.Bind(wx.EVT_BUTTON, self.onCopyAll)
 
-		# Translators: the label for the clear history button in the speech history add-on. This button clean all items in the historial, both in the dialog and in the add-on.
+		# Translators: the label for the clear history button in the speech history Explorer add-on. This button clean all items in the historial, both in the dialog and in the add-on.
 		self.clearHistoryButton = szBottom.addItem(wx.Button(self, label=_("C&lean history")))
 		self.clearHistoryButton.Bind(wx.EVT_BUTTON, self.onClear)
 
-		# Translators: the label for the refresh history button in the speech history add-on. This button updates the list item with the new history elements.
+		# Translators: the label for the refresh history button in the speech history Explorer add-on. This button updates the list item with the new history elements.
 		self.refreshButton = szBottom.addItem(wx.Button(self, label=_("&Refresh history")))
 		self.refreshButton.Bind(wx.EVT_BUTTON, self.onRefresh)
 

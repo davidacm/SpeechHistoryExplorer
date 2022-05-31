@@ -1,0 +1,39 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the 'speechHistoryExplorer' package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 'speechHistoryExplorer' '2022.1-dev'\n"
+"Report-Msgid-Bugs-To: 'nvda-translations@freelists.org'\n"
+"POT-Creation-Date: 2022-05-30 20:14-0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Add-on summary, usually the user visible name of the addon.
+#. Translators: Summary for this add-on to be shown on installation and add-on information.
+#: buildVars.py:17
+msgid "Speech history Explorer"
+msgstr ""
+
+#. Add-on description
+#. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
+#: buildVars.py:20
+msgid ""
+"This add-on allows you to review the most recent strings spoken by NVDA, by "
+"default using NVDA+Shift+F11 and NVDA+Shift+F12. \n"
+"\tAdditionally, you can copy any spoken item to the clipboard by pressing "
+"NVDA+Control+F12 and shows a dialog of all stored spoken elements with NVDA"
+"+Alt+f12.\n"
+"\tUse the settings panel for the add-on to increase or decrease the maximum "
+"number of stored history entries, and decide whether whitespace should be "
+"trimmed from the start or end of text.\n"
+"\tUse NVDA's Input Gestures dialog to change the supplied keystrokes."
+msgstr ""
