@@ -22,7 +22,7 @@ addon_info = {
 	Use the settings panel for the add-on to increase or decrease the maximum number of stored history entries, and decide whether whitespace should be trimmed from the start or end of text.
 	Use NVDA's Input Gestures dialog to change the supplied keystrokes."""),
 	# version
-	"addon_version" : "2022.1-dev",
+	"addon_version" : "2022.2-dev",
 	# Author(s)
 	"addon_author" : u"Tyler Spivey, James Scholes, David CM <dhf360@gmail.com>",
 	# URL for the add-on documentation support
@@ -32,7 +32,7 @@ addon_info = {
 	# Minimum NVDA version supported (e.g. "2018.3.0")
 	"addon_minimumNVDAVersion" : "2019.3.0",
 	# Last NVDA version supported/tested (e.g. "2018.4.0", ideally more recent than minimum version)
-	"addon_lastTestedNVDAVersion" : "2022.1",
+	"addon_lastTestedNVDAVersion" : "2022.2",
 	# Add-on update channel (default is stable or None)
 	"addon_updateChannel" : None,
 }
