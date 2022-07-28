@@ -28,6 +28,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			'maxHistoryLength': 'integer(default=500)',
 			'trimWhitespaceFromStart': 'boolean(default=false)',
 			'trimWhitespaceFromEnd': 'boolean(default=false)',
+			'beepWhenPerformingActions': 'boolean(default=true)',
 		}
 		config.conf.spec['speechHistoryExplorer'] = confspec
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(speechHistoryExplorerSettingsPanel)
@@ -54,7 +55,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 			text = text.lstrip()
 		if config.conf['speechHistoryExplorer']['trimWhitespaceFromEnd']:
 			text = text.rstrip()
-		if api.copyToClip(text):
+		if api.copyToClip(text) and config.conf['speechHistoryExplorer']['beepWhenPerformingActions']:
 			tones.beep(1500, 120)
 
 	@script(
@@ -65,7 +66,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_prevString(self, gesture):
 		self.history_pos += 1
 		if self.history_pos > len(self._history) - 1:
-			tones.beep(220, 100, 100, 0)
+			if config.conf['speechHistoryExplorer']['beepWhenPerformingActions']:
+				tones.beep(220, 100, 100, 0)
 			self.history_pos -= 1
 		self.oldSpeak(self._history[self.history_pos])
 
@@ -77,7 +79,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_nextString(self, gesture):
 		self.history_pos -= 1
 		if self.history_pos < 0:
-			tones.beep(220, 100, 0, 100)
+			if config.conf['speechHistoryExplorer']['beepWhenPerformingActions']:
+				tones.beep(220, 100, 0, 100)
 			self.history_pos += 1
 		self.oldSpeak(self._history[self.history_pos])
 
@@ -133,11 +136,15 @@ class speechHistoryExplorerSettingsPanel(gui.SettingsPanel):
 		# Translators: the label for the preference to trim whitespace from the end of text
 		self.trimWhitespaceFromEndCB = helper.addItem(wx.CheckBox(self, label=_('Trim whitespace from &end when copying text')))
 		self.trimWhitespaceFromEndCB.SetValue(config.conf['speechHistoryExplorer']['trimWhitespaceFromEnd'])
+		# Translators: Beep or not when actions are taken
+		self.beepWhenPerformingActionscb = helper.addItem(wx.CheckBox(self, label=_('Beep when performing actions')))
+		self.beepWhenPerformingActionscb.SetValue(config.conf['speechHistoryExplorer']['beepWhenPerformingActions'])
 
 	def onSave(self):
 		config.conf['speechHistoryExplorer']['maxHistoryLength'] = self.maxHistoryLengthEdit.GetValue()
 		config.conf['speechHistoryExplorer']['trimWhitespaceFromStart'] = self.trimWhitespaceFromStartCB.GetValue()
 		config.conf['speechHistoryExplorer']['trimWhitespaceFromEnd'] = self.trimWhitespaceFromEndCB.GetValue()
+		config.conf['speechHistoryExplorer']['beepWhenPerformingActions'] = self.beepWhenPerformingActionscb.GetValue()
 
 
 class HistoryDialog(
