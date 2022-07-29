@@ -1,3 +1,6 @@
+# NVDA Add-on: Speech History Explorer
+# Copyright (C) 2022 David CM
+
 import config
 
 def getConfigValue(path, optName):
