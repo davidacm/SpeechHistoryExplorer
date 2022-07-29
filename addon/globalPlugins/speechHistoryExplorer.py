@@ -6,17 +6,30 @@
 # This add-on is free software, licensed under the terms of the GNU General Public License (version 2).
 # See the file LICENSE for more details.
 
-import addonHandler, api, config, globalPluginHandler, gui, speech, speechViewer, tones, versionInfo, weakref, wx
+import addonHandler, api, globalPluginHandler, gui, speech, speechViewer, tones, versionInfo, weakref, wx
 from collections import deque
 from eventHandler import FocusLossCancellableSpeechCommand
 from gui import guiHelper, nvdaControls
 from gui.dpiScalingHelper import DpiScalingHelperMixin, DpiScalingHelperMixinWithoutInit
 from queueHandler import eventQueue, queueFunction
 from scriptHandler import script
+from ._config import appConfig
 
 addonHandler.initTranslation()
 
 BUILD_YEAR = getattr(versionInfo, 'version_year', 2021)
+
+# a static class for ease of beeping tones. This may be used to change beeps to wave sounds.
+class beep:
+	def left(freq=220, duration=100):
+		tones.beep(freq, duration, 100, 0)
+
+	def right(freq=220, duration=100):
+		tones.beep(freq, duration, 0, 100)
+
+	def center(freq=1500, duration=120):
+		tones.beep(freq, duration)
+
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	# Translators: script category for add-on gestures.
@@ -24,16 +37,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		confspec = {
-			'maxHistoryLength': 'integer(default=500)',
-			'trimWhitespaceFromStart': 'boolean(default=false)',
-			'trimWhitespaceFromEnd': 'boolean(default=false)',
-			'beepWhenPerformingActions': 'boolean(default=true)',
-		}
-		config.conf.spec['speechHistoryExplorer'] = confspec
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(speechHistoryExplorerSettingsPanel)
 
-		self._history = deque(maxlen=config.conf['speechHistoryExplorer']['maxHistoryLength'])
+		self._history = deque(maxlen = appConfig.maxHistoryLength)
 		self._patch()
 
 	def _patch(self):
@@ -51,12 +57,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	)
 	def script_copyLast(self, gesture):
 		text = self.getSequenceText(self._history[self.history_pos])
-		if config.conf['speechHistoryExplorer']['trimWhitespaceFromStart']:
+		if appConfig.trimWhitespaceFromStart:
 			text = text.lstrip()
-		if config.conf['speechHistoryExplorer']['trimWhitespaceFromEnd']:
+		if appConfig.trimWhitespaceFromEnd:
 			text = text.rstrip()
-		if api.copyToClip(text) and config.conf['speechHistoryExplorer']['beepWhenPerformingActions']:
-			tones.beep(1500, 120)
+		if api.copyToClip(text) and appConfig.beepWhenPerformingActions:
+			beep.center()
 
 	@script(
 		# Translators: Documentation string for previous speech history Explorer item script
@@ -66,8 +72,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_prevString(self, gesture):
 		self.history_pos += 1
 		if self.history_pos > len(self._history) - 1:
-			if config.conf['speechHistoryExplorer']['beepWhenPerformingActions']:
-				tones.beep(220, 100, 100, 0)
+			if appConfig.beepWhenPerformingActions:
+				if beepPanning:
+					beep.left()
+				else:
+					beep.center(220, 100)
 			self.history_pos -= 1
 		self.oldSpeak(self._history[self.history_pos])
 
@@ -79,8 +88,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_nextString(self, gesture):
 		self.history_pos -= 1
 		if self.history_pos < 0:
-			if config.conf['speechHistoryExplorer']['beepWhenPerformingActions']:
-				tones.beep(220, 100, 0, 100)
+			if appConfig.beepWhenPerformingActions:
+				beep.right()
 			self.history_pos += 1
 		self.oldSpeak(self._history[self.history_pos])
 
@@ -129,22 +138,22 @@ class speechHistoryExplorerSettingsPanel(gui.SettingsPanel):
 		helper = gui.guiHelper.BoxSizerHelper(self, sizer=settingsSizer)
 		# Translators: the label for the preference to choose the maximum number of stored history entries
 		maxHistoryLengthLabelText = _('&Maximum number of history entries (requires NVDA restart to take effect)')
-		self.maxHistoryLengthEdit = helper.addLabeledControl(maxHistoryLengthLabelText, nvdaControls.SelectOnFocusSpinCtrl, min=1, max=5000, initial=config.conf['speechHistoryExplorer']['maxHistoryLength'])
+		self.maxHistoryLengthEdit = helper.addLabeledControl(maxHistoryLengthLabelText, nvdaControls.SelectOnFocusSpinCtrl, min=1, max=5000, initial=appConfig.maxHistoryLength)
 		# Translators: the label for the preference to trim whitespace from the start of text
 		self.trimWhitespaceFromStartCB = helper.addItem(wx.CheckBox(self, label=_('Trim whitespace from &start when copying text')))
-		self.trimWhitespaceFromStartCB.SetValue(config.conf['speechHistoryExplorer']['trimWhitespaceFromStart'])
+		self.trimWhitespaceFromStartCB.SetValue(appConfig.trimWhitespaceFromStart)
 		# Translators: the label for the preference to trim whitespace from the end of text
 		self.trimWhitespaceFromEndCB = helper.addItem(wx.CheckBox(self, label=_('Trim whitespace from &end when copying text')))
-		self.trimWhitespaceFromEndCB.SetValue(config.conf['speechHistoryExplorer']['trimWhitespaceFromEnd'])
+		self.trimWhitespaceFromEndCB.SetValue(appConfig.trimWhitespaceFromEnd)
 		# Translators: Beep or not when actions are taken
 		self.beepWhenPerformingActionscb = helper.addItem(wx.CheckBox(self, label=_('Beep when performing actions')))
-		self.beepWhenPerformingActionscb.SetValue(config.conf['speechHistoryExplorer']['beepWhenPerformingActions'])
+		self.beepWhenPerformingActionscb.SetValue(appConfig.beepWhenPerformingActions)
 
 	def onSave(self):
-		config.conf['speechHistoryExplorer']['maxHistoryLength'] = self.maxHistoryLengthEdit.GetValue()
-		config.conf['speechHistoryExplorer']['trimWhitespaceFromStart'] = self.trimWhitespaceFromStartCB.GetValue()
-		config.conf['speechHistoryExplorer']['trimWhitespaceFromEnd'] = self.trimWhitespaceFromEndCB.GetValue()
-		config.conf['speechHistoryExplorer']['beepWhenPerformingActions'] = self.beepWhenPerformingActionscb.GetValue()
+		appConfig.maxHistoryLength = self.maxHistoryLengthEdit.GetValue()
+		appConfig.trimWhitespaceFromStart = self.trimWhitespaceFromStartCB.GetValue()
+		appConfig.trimWhitespaceFromEnd = self.trimWhitespaceFromEndCB.GetValue()
+		appConfig.beepWhenPerformingActions = self.beepWhenPerformingActionscb.GetValue()
 
 
 class HistoryDialog(
