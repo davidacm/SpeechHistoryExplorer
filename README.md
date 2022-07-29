@@ -26,3 +26,36 @@ Also, you can copy all current items with "Copy all" button. This will copy just
 
 If you want to select more than one item, use same keys as on windows. E.G, shift + up and down arrow keys to do contiguous selection, control + the same keys to do uncontiguous selection.
 To close this dialog, press escape or close button.
+
+
+### Contributing fixing bugs and new features.
+  If you want to fix a bug or add new feature, You will need to fork this repository.
+
+  #### Forking the repository.
+  If this is your first contribution, you will first need to "fork" the SpeechHistoryExplorer repository on github:
+
+  1. Fork this repo in your github account.
+  2. Clone your forked repo locally: "git clone yourRepoUrl".
+  3. Add this repo in your forked repo from the command line:  
+  "git remote add davidacm https://github.com/davidacm/SpeechHistoryExplorer.git".
+  4. fetch my branches:  
+  "git fetch davidacm".
+  5. Switch to the local SPE branch: "git checkout SPE".
+  6. Set the local SPE to use the davidacm  SPE as its upstream:  
+  "git branch -u davidacm/SPE".  
+
+#### Steps before coding.
+  You must use a separate "topic" branch for each issue or feature. All code should usually be based on the latest commit in the official SPE branch at the time you start the work.
+  So, before begin to work, do the following:
+
+  1. Remember the steps of "Forking the repository" section.
+  2. Checkout to SPE branch: "git checkout SPE".
+  3. Update the local SPE: "git pull".
+  4. Create a new branch based on the updated SPE branch: "git checkout -b YourNewBranch".
+  5. write your code.
+  6. Add your work to be commited (clean unwanted files first): git "add ."
+  7. create a commit: "git commit" and write the commit message.
+  8. push your branch in your repository: "git push". if the branch doesn't exist, git will tell you how to deal with this.
+  9. Request a pull request on my repository.
+
+Note: the main branch is called SPE. That's because this is a repo, and I prefer to use the SPE branch. The master branch will be used to integrate important changes from the original forked repository.
