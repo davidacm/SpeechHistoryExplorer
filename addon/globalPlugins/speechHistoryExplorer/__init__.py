@@ -13,11 +13,24 @@ from gui import guiHelper, nvdaControls
 from gui.dpiScalingHelper import DpiScalingHelperMixin, DpiScalingHelperMixinWithoutInit
 from queueHandler import eventQueue, queueFunction
 from scriptHandler import script
-from ._config import appConfig
 
 addonHandler.initTranslation()
 
 BUILD_YEAR = getattr(versionInfo, 'version_year', 2021)
+
+
+from ._configHelper import *
+class AppConfig(BaseConfig):
+	def __init__(self):
+		super().__init__('speechHistoryExplorer')
+
+	maxHistoryLength = OptConfig('integer(default=500)')
+	trimWhitespaceFromStart = OptConfig('boolean(default=false)')
+	trimWhitespaceFromEnd = OptConfig('boolean(default=true)')
+	beepWhenPerformingActions = OptConfig('boolean(default=true)')
+	beepPanning = OptConfig('boolean(default=true)')
+AF = registerConfig(AppConfig)
+
 
 # a static class for ease of beeping tones. This may be used to change beeps to wave sounds.
 class beep:
@@ -39,7 +52,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		super().__init__(*args, **kwargs)
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(speechHistoryExplorerSettingsPanel)
 
-		self._history = deque(maxlen = appConfig.maxHistoryLength)
+		self._history = deque(maxlen = AF.maxHistoryLength)
 		self._patch()
 
 	def _patch(self):
@@ -57,11 +70,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	)
 	def script_copyLast(self, gesture):
 		text = self.getSequenceText(self._history[self.history_pos])
-		if appConfig.trimWhitespaceFromStart:
+		if AF.trimWhitespaceFromStart:
 			text = text.lstrip()
-		if appConfig.trimWhitespaceFromEnd:
+		if AF.trimWhitespaceFromEnd:
 			text = text.rstrip()
-		if api.copyToClip(text) and appConfig.beepWhenPerformingActions:
+		if api.copyToClip(text) and AF.beepWhenPerformingActions:
 			beep.center()
 
 	@script(
@@ -72,8 +85,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_prevString(self, gesture):
 		self.history_pos += 1
 		if self.history_pos > len(self._history) - 1:
-			if appConfig.beepWhenPerformingActions:
-				if appConfig.beepPanning:
+			if AF.beepWhenPerformingActions:
+				if AF.beepPanning:
 					beep.left()
 				else:
 					beep.center(220, 100)
@@ -88,8 +101,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	def script_nextString(self, gesture):
 		self.history_pos -= 1
 		if self.history_pos < 0:
-			if appConfig.beepWhenPerformingActions:
-				if appConfig.beepPanning:
+			if AF.beepWhenPerformingActions:
+				if AF.beepPanning:
 					beep.right()
 				else:
 					beep.center(220, 100)
@@ -143,27 +156,27 @@ class speechHistoryExplorerSettingsPanel(gui.SettingsPanel):
 		helper = gui.guiHelper.BoxSizerHelper(self, sizer=settingsSizer)
 		# Translators: the label for the preference to choose the maximum number of stored history entries
 		maxHistoryLengthLabelText = _('&Maximum number of history entries (requires NVDA restart to take effect)')
-		self.maxHistoryLengthEdit = helper.addLabeledControl(maxHistoryLengthLabelText, nvdaControls.SelectOnFocusSpinCtrl, min=1, max=5000, initial=appConfig.maxHistoryLength)
+		self.maxHistoryLengthEdit = helper.addLabeledControl(maxHistoryLengthLabelText, nvdaControls.SelectOnFocusSpinCtrl, min=1, max=5000, initial=AF.maxHistoryLength)
 		# Translators: the label for the preference to trim whitespace from the start of text
 		self.trimWhitespaceFromStartCB = helper.addItem(wx.CheckBox(self, label=_('Trim whitespace from &start when copying text')))
-		self.trimWhitespaceFromStartCB.SetValue(appConfig.trimWhitespaceFromStart)
+		self.trimWhitespaceFromStartCB.SetValue(AF.trimWhitespaceFromStart)
 		# Translators: the label for the preference to trim whitespace from the end of text
 		self.trimWhitespaceFromEndCB = helper.addItem(wx.CheckBox(self, label=_('Trim whitespace from &end when copying text')))
-		self.trimWhitespaceFromEndCB.SetValue(appConfig.trimWhitespaceFromEnd)
+		self.trimWhitespaceFromEndCB.SetValue(AF.trimWhitespaceFromEnd)
 		# Translators: Beep or not when actions are taken
 		self.beepWhenPerformingActionscb = helper.addItem(wx.CheckBox(self, label=_('Beep when performing actions')))
-		self.beepWhenPerformingActionscb.SetValue(appConfig.beepWhenPerformingActions)
+		self.beepWhenPerformingActionscb.SetValue(AF.beepWhenPerformingActions)
 		# Translators: beep panned to the left or right if there are not more older or newer elements
 		self.beepPanning = helper.addItem(wx.CheckBox(self, label=_('Beep left or right when no more older or newer elements are available')))
-		self.beepPanning.SetValue(appConfig.beepPanning)
+		self.beepPanning.SetValue(AF.beepPanning)
 
 
 	def onSave(self):
-		appConfig.maxHistoryLength = self.maxHistoryLengthEdit.GetValue()
-		appConfig.trimWhitespaceFromStart = self.trimWhitespaceFromStartCB.GetValue()
-		appConfig.trimWhitespaceFromEnd = self.trimWhitespaceFromEndCB.GetValue()
-		appConfig.beepWhenPerformingActions = self.beepWhenPerformingActionscb.GetValue()
-		appConfig.beepPanning = self.beepPanning.GetValue()
+		AF.maxHistoryLength = self.maxHistoryLengthEdit.GetValue()
+		AF.trimWhitespaceFromStart = self.trimWhitespaceFromStartCB.GetValue()
+		AF.trimWhitespaceFromEnd = self.trimWhitespaceFromEndCB.GetValue()
+		AF.beepWhenPerformingActions = self.beepWhenPerformingActionscb.GetValue()
+		AF.beepPanning = self.beepPanning.GetValue()
 
 
 class HistoryDialog(
