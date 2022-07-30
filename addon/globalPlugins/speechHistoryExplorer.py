@@ -100,7 +100,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 	)
 	def script_showHistorial(self, gesture):
 		gui.mainFrame.prePopup()
-		HistoryDialog(gui.mainFrame, self).Show()
+		d = HistoryDialog(gui.mainFrame, self)
+		d.Show()
+		d.Raise()
 		gui.mainFrame.postPopup()
 
 	def terminate(self, *args, **kwargs):
@@ -179,6 +181,7 @@ class HistoryDialog(
 
 	def __init__(self, parent, addon):
 		if HistoryDialog._instance() is not None:
+			self.updateHistory()
 			return
 		HistoryDialog._instance = weakref.ref(self)
 		# Translators: The title of the history elements Dialog
