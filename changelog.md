@@ -1,6 +1,8 @@
-## Changes for 2022.2-dev ##
+## Changes for 2022.2.2-dev ##
 
-* Changed the name of the add-on to Speech History Explorer.
-* added a category for this add-on in scripts categories, for example when the categories are shown in the input gesture dialog.
-* modified the code to use @script decorator.
-* Modified and sorted the imports.
+Updated styling for the help.
+now clean history button closes the dialog.
+now is possible to reopen the dialog if this is already opened.
+added an option to avoid beeping.
+added an option to ignore beeping left or right when no more older or newer elements are available. With this option enabled, all beeps will be centered.
+internal changes. Now the config is managed different.

@@ -73,7 +73,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.history_pos += 1
 		if self.history_pos > len(self._history) - 1:
 			if appConfig.beepWhenPerformingActions:
-				if beepPanning:
+				if appConfig.beepPanning:
 					beep.left()
 				else:
 					beep.center(220, 100)
@@ -89,7 +89,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.history_pos -= 1
 		if self.history_pos < 0:
 			if appConfig.beepWhenPerformingActions:
-				beep.right()
+				if appConfig.beepPanning:
+					beep.right()
+				else:
+					beep.center(220, 100)
 			self.history_pos += 1
 		self.oldSpeak(self._history[self.history_pos])
 
@@ -150,12 +153,17 @@ class speechHistoryExplorerSettingsPanel(gui.SettingsPanel):
 		# Translators: Beep or not when actions are taken
 		self.beepWhenPerformingActionscb = helper.addItem(wx.CheckBox(self, label=_('Beep when performing actions')))
 		self.beepWhenPerformingActionscb.SetValue(appConfig.beepWhenPerformingActions)
+		# Translators: beep panned to the left or right if there are not more older or newer elements
+		self.beepPanning = helper.addItem(wx.CheckBox(self, label=_('Beep left or right when no more older or newer elements are available')))
+		self.beepPanning.SetValue(appConfig.beepPanning)
+
 
 	def onSave(self):
 		appConfig.maxHistoryLength = self.maxHistoryLengthEdit.GetValue()
 		appConfig.trimWhitespaceFromStart = self.trimWhitespaceFromStartCB.GetValue()
 		appConfig.trimWhitespaceFromEnd = self.trimWhitespaceFromEndCB.GetValue()
 		appConfig.beepWhenPerformingActions = self.beepWhenPerformingActionscb.GetValue()
+		appConfig.beepPanning = self.beepPanning.GetValue()
 
 
 class HistoryDialog(
@@ -352,7 +360,7 @@ class HistoryDialog(
 	def onClear(self, evt):
 		self.addon.clearHistory()
 		self.searches = {"":0}
-		self.updateHistory()
+		self.Close()
 
 	def onRefresh(self, evt):
 		self.updateHistory()
