@@ -28,8 +28,8 @@ def setConfigValue(path, optName, value):
 	ops[optName] = value
 
 
-def registerConfig(clsSpec):
-	AF = clsSpec()
+def registerConfig(clsSpec, path=None):
+	AF = clsSpec(path)
 	config.conf.spec[AF.path[0]] = AF.createSpec()
 	AF.returnValue = True
 	return AF
@@ -74,9 +74,13 @@ class BaseConfig:
 	by default this value is False, to help to create the configuration spec first.
 	Set it to true after creating this spec.
 	"""
-
-	def __init__(self, path):
+	path = None
+	def __init__(self, path=None):
 		self.returnValue = False
+		if not path:
+			path = self.__class__.path
+		if not path:
+			raise Exception("Path for the config is not defined")
 		if isinstance(path, list):
 			self.path = path
 		else:

@@ -21,8 +21,7 @@ BUILD_YEAR = getattr(versionInfo, 'version_year', 2021)
 
 from ._configHelper import *
 class AppConfig(BaseConfig):
-	def __init__(self):
-		super().__init__('speechHistoryExplorer')
+	path = 'speechHistoryExplorer'
 
 	maxHistoryLength = OptConfig('integer(default=500)')
 	trimWhitespaceFromStart = OptConfig('boolean(default=false)')
