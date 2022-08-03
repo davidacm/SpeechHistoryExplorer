@@ -30,40 +30,33 @@ def setConfigValue(path, optName, value):
 
 def registerConfig(clsSpec, path=None):
 	AF = clsSpec(path)
-	config.conf.spec[AF.path[0]] = AF.createSpec()
+	config.conf.spec[AF.__path__[0]] = AF.createSpec()
 	AF.returnValue = True
 	return AF
 
 
 class OptConfig:
 	""" just a helper descriptor to create the main class to accesing config values.
-	the option name will be taken from the declared variable. if you need to set another name, set it in the first param.
+	the option name will be taken from the declared variable.
 	"""
-	def __init__(self, a, b = None):
+	def __init__(self, desc):
 		"""
 		params:
-		@a: usually the spec description. But if b is not none, a will be the name of the option.
-		@b: the config description when is not None.
+		@desc: the spec description.
 		"""
-		if b:
-			self.name = a
-			self.desc = b
-		else:
-			self.desc = a
-			self.name = None
+		self.desc = desc
 
 	def __set_name__(self, owner, name):
-		if not self.name:
-			self.name = name
-		owner._confOpts.append(name)
+		self.name = name
+		owner.__confOpts__.append(name)
 
 	def __get__(self, obj, type=None):
 		if obj.returnValue:
-			return getConfigValue(obj.path, self.name)
+			return getConfigValue(obj.__path__, self.name)
 		return self.name, self.desc
 
 	def __set__(self, obj, value):
-		setConfigValue(obj.path, self.name, value)
+		setConfigValue(obj.__path__, self.name, value)
 
 
 class BaseConfig:
@@ -74,25 +67,40 @@ class BaseConfig:
 	by default this value is False, to help to create the configuration spec first.
 	Set it to true after creating this spec.
 	"""
-	path = None
+	__path__ = None
 	def __init__(self, path=None):
 		self.returnValue = False
 		if not path:
-			path = self.__class__.path
+			path = self.__class__.__path__
 		if not path:
 			raise Exception("Path for the config is not defined")
 		if isinstance(path, list):
-			self.path = path
+			self.__path__ = path
 		else:
-			self.path = [path]
+			self.__path__ = [path]
 
 	def createSpec(self):
 		""" this method creates a config spec with the provided attributes in the class
 		"""
 		s = {}
-		for k in self.__class__._confOpts:
+		for k in self.__class__.__confOpts__:
 			k = self.__getattribute__(k)
 			s[k[0]] = k[1]
 		return s
 	# an array of the available options.
-	_confOpts = []
+	__confOpts__ = []
+
+
+def configSpec(cls):
+	class ConfigSpec(BaseConfig):
+		pass
+
+	for k in cls.__dict__:
+		if k == '__path__':
+			ConfigSpec.__path__ = cls.__path__
+		if k.startswith("__"): continue
+		v = getattr(cls, k)
+		d = OptConfig(v)
+		d.__set_name__(ConfigSpec, k)
+		setattr(ConfigSpec, k, d)
+	return ConfigSpec
