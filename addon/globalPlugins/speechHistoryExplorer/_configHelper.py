@@ -91,16 +91,30 @@ class BaseConfig:
 	__confOpts__ = []
 
 
-def configSpec(cls):
-	class ConfigSpec(BaseConfig):
-		pass
+def configSpec(pathOrCls):
+	""" a decorator to help with the generation of the class config spec.
+	adds a get and set descriptor for eatch attribute in the config class.
+	except the attributes starting with "__".
+	params:
+	@pathOrCls: the config path,
+	or if the decorator is called without params, then the decorated class.
+	path as an argument in the decorator has a higher priority than the __path__ declared in the class.
+	"""
+	def configDecorator(cls):
+		class ConfigSpec(BaseConfig):
+			pass
 
-	for k in cls.__dict__:
-		if k == '__path__':
-			ConfigSpec.__path__ = cls.__path__
-		if k.startswith("__"): continue
-		v = getattr(cls, k)
-		d = OptConfig(v)
-		d.__set_name__(ConfigSpec, k)
-		setattr(ConfigSpec, k, d)
-	return ConfigSpec
+		for k in cls.__dict__:
+			if k.startswith("__"): continue
+			v = getattr(cls, k)
+			d = OptConfig(v)
+			d.__set_name__(ConfigSpec, k)
+			setattr(ConfigSpec, k, d)
+		ConfigSpec.__path__ = path
+		return ConfigSpec
+	if isinstance(pathOrCls, str):
+		path = pathOrCls
+		return configDecorator
+	else:
+		path = pathOrCls.__path__
+		return configDecorator(pathOrCls)

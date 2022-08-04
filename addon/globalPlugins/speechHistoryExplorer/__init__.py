@@ -20,9 +20,8 @@ BUILD_YEAR = getattr(versionInfo, 'version_year', 2021)
 
 
 from ._configHelper import configSpec, registerConfig
-@configSpec
+@configSpec('speechHistoryExplorer')
 class AppConfig:
-	__path__ = 'speechHistoryExplorer'
 	maxHistoryLength = 'integer(default=500)'
 	trimWhitespaceFromStart = 'boolean(default=false)'
 	trimWhitespaceFromEnd = 'boolean(default=true)'
