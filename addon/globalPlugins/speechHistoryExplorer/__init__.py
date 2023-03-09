@@ -1,5 +1,5 @@
 # NVDA Add-on: Speech History Explorer
-# Copyright (C) 2022 David CM
+# Copyright (C) 2022 - 2023 David CM
 # Copyright (C) 2015-2021 James Scholes
 # Copyright (C) 2012 Tyler Spivey
 

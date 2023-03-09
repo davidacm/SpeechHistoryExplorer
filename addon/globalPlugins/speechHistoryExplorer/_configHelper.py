@@ -1,5 +1,5 @@
 # NVDA configHelper.
-# Copyright (C) 2022 David CM
+# Copyright (C) 2022 - 2023 David CM
 
 import config
 
