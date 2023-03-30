@@ -8,7 +8,11 @@
 
 import addonHandler, api, globalPluginHandler, gui, speech, speechViewer, tones, versionInfo, weakref, wx
 from collections import deque
-from eventHandler import FocusLossCancellableSpeechCommand
+try:
+	from eventHandler import FocusLossCancellableSpeechCommand
+except ImportError:
+	# For older versions where this class does not exist
+	pass
 from gui import guiHelper, nvdaControls
 from gui.dpiScalingHelper import DpiScalingHelperMixin, DpiScalingHelperMixinWithoutInit
 from queueHandler import eventQueue, queueFunction
@@ -128,7 +132,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		gui.settingsDialogs.NVDASettingsDialog.categoryClasses.remove(speechHistoryExplorerSettingsPanel)
 
 	def append_to_history(self, seq):
-		seq = [command for command in seq if not isinstance(command, FocusLossCancellableSpeechCommand)]
+		try:
+			seq = [command for command in seq if not isinstance(command, FocusLossCancellableSpeechCommand)]
+		except NameError:  # if FocusLossCancellableSpeechCommand does not exist
+			pass
 		self._history.appendleft(seq)
 		self.history_pos = 0
 
@@ -179,7 +186,6 @@ class speechHistoryExplorerSettingsPanel(gui.SettingsPanel):
 
 class HistoryDialog(
 		DpiScalingHelperMixinWithoutInit,
-		gui.contextHelp.ContextHelpMixin,
 		wx.Dialog  # wxPython does not seem to call base class initializer, put last in MRO
 ):
 	@classmethod
