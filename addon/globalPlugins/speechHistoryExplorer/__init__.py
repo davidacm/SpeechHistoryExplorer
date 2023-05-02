@@ -36,14 +36,9 @@ AF = registerConfig(AppConfig)
 
 # a static class for ease of beeping tones. This may be used to change beeps to wave sounds.
 class beep:
-	def left(freq=220, duration=100):
-		tones.beep(freq, duration, 100, 0)
-
-	def right(freq=220, duration=100):
-		tones.beep(freq, duration, 0, 100)
-
-	def center(freq=1500, duration=120):
-		tones.beep(freq, duration)
+	center, left, right = (100, 100), (100, 0), (0, 100)
+	def beep(direction=(100,100), freq=220, length=100):
+		tones.beep(freq, length, *direction)
 
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
@@ -77,7 +72,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		if AF.trimWhitespaceFromEnd:
 			text = text.rstrip()
 		if api.copyToClip(text) and AF.beepWhenPerformingActions:
-			beep.center()
+			beep.beep(beep.center, 1500, 120)
 
 	@script(
 		# Translators: Documentation string for previous speech history Explorer item script
@@ -89,9 +84,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		if self.history_pos > len(self._history) - 1:
 			if AF.beepWhenPerformingActions:
 				if AF.beepPanning:
-					beep.left()
+					beep.beep(beep.left)
 				else:
-					beep.center(220, 100)
+					beep.beep()
 			self.history_pos -= 1
 		self.oldSpeak(self._history[self.history_pos])
 
@@ -105,9 +100,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		if self.history_pos < 0:
 			if AF.beepWhenPerformingActions:
 				if AF.beepPanning:
-					beep.right()
+					beep.beep(beep.right)
 				else:
-					beep.center(220, 100)
+					beep.beep()
 			self.history_pos += 1
 		self.oldSpeak(self._history[self.history_pos])
 
@@ -367,7 +362,7 @@ class HistoryDialog(
 		t = self.currentTextElement.GetValue()
 		if t:
 			if api.copyToClip(t):
-				tones.beep(1500, 120)
+				tones.beep(duration=120)
 
 	def onCopyAll(self, evt):
 		t = self.itemsToString(range(0, len(self.searchHistory)))

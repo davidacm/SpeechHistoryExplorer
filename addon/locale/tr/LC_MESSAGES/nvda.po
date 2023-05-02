@@ -1,0 +1,98 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Konuşma Geçmişi Gezgini 2023.3\n"
+"POT-Creation-Date: 2023-04-27 14:41+0300\n"
+"PO-Revision-Date: 2023-04-27 14:56+0300\n"
+"Last-Translator: Umut KORKMAZ <umutkork@gmail.com>\n"
+"Language-Team: Umut KORKMAZ <umutkork@gmail.com>\n"
+"Language: tr_TR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.2.2\n"
+"X-Poedit-Basepath: ../../../globalPlugins\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: speechHistoryExplorer/__init__.py:47 speechHistoryExplorer/__init__.py:151
+msgid "Speech History Explorer"
+msgstr "Konuşma Geçmişi Gezgini"
+
+#: speechHistoryExplorer/__init__.py:66
+msgid ""
+"Copy the currently selected speech history Explorer item to the clipboard, "
+"which by default will be the most recently spoken text by NVDA."
+msgstr ""
+"Seçili olan konuşma geçmişi Gezgini öğesini panoya kopyalar, varsayılan "
+"olarak NVDA tarafından en son konuşulan metin olacaktır."
+
+#: speechHistoryExplorer/__init__.py:80
+msgid "Review the previous item in NVDA's speech history."
+msgstr "NVDA'nın konuşma geçmişindeki bir önceki öğeyi gözden geçirir."
+
+#: speechHistoryExplorer/__init__.py:96
+msgid "Review the next item in NVDA's speech history."
+msgstr "NVDA'nın konuşma geçmişindeki bir sonraki öğeyi gözden geçirir."
+
+#: speechHistoryExplorer/__init__.py:112
+msgid "Opens a dialog showing all most recent items spoken by NVDA"
+msgstr ""
+"NVDA tarafından konuşulan en son tüm öğeleri gösteren bir iletişim kutusu "
+"açar"
+
+#: speechHistoryExplorer/__init__.py:156
+msgid ""
+"&Maximum number of history entries (requires NVDA restart to take effect)"
+msgstr ""
+"Gösterilecek &maksimum giriş sayısı (etkinleştirilebilmesi için NVDA'nın "
+"yeniden başlatılması gerekir)"
+
+#: speechHistoryExplorer/__init__.py:159
+msgid "Trim whitespace from &start when copying text"
+msgstr "Metni kopyalarken baştaki boşluklarıke&s"
+
+#: speechHistoryExplorer/__init__.py:162
+msgid "Trim whitespace from &end when copying text"
+msgstr "Metni kopyalarken sondaki boşlukları k&es"
+
+#: speechHistoryExplorer/__init__.py:165
+msgid "Beep when performing actions"
+msgstr "Eylemleri gerçekleştirirken bip sesi çıkart"
+
+#: speechHistoryExplorer/__init__.py:168
+msgid "Beep left or right when no more older or newer elements are available"
+msgstr ""
+"Daha eski öğe yoksa soldan, daha yeni öğe yoksa sağdan bip sesi çıkart"
+
+#: speechHistoryExplorer/__init__.py:207
+msgid "Speech history items"
+msgstr "Konuşma geçmişi öğeleri"
+
+#: speechHistoryExplorer/__init__.py:231
+msgid "&Search"
+msgstr "&Ara"
+
+#: speechHistoryExplorer/__init__.py:239
+msgid "History list"
+msgstr "Geçmiş listesi"
+
+#: speechHistoryExplorer/__init__.py:265
+msgid "&Copy item"
+msgstr "&Öğeyi kopyala"
+
+#: speechHistoryExplorer/__init__.py:281
+msgid "Copy &all"
+msgstr "&Tümünü kopyala"
+
+#: speechHistoryExplorer/__init__.py:285
+msgid "C&lean history"
+msgstr "&Geçmişi temizle"
+
+#: speechHistoryExplorer/__init__.py:289
+msgid "&Refresh history"
+msgstr "Geçmişi &yenile"
+
+#: speechHistoryExplorer/__init__.py:293
+msgid "C&lose"
+msgstr "&Kapat"

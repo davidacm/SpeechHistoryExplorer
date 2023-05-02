@@ -8,3 +8,4 @@ addon/doc/en/
 *.nvda-addon
 .sconsign.dblite
 *.code-workspace
+*.json
