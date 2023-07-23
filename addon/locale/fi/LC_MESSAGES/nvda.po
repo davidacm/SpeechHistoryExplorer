@@ -1,0 +1,126 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 'speechHistoryExplorer' '2023.5.2'\n"
+"Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
+"POT-Creation-Date: 2023-07-23 17:08+0200\n"
+"PO-Revision-Date: 2023-07-23 17:38+0200\n"
+"Last-Translator: Jani Kinnunen <janikinnunen340@gmail.com>\n"
+"Language-Team: fi_FI <janikinnunen340@gmail.com>\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.11\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: ..\\..\\..\\globalPlugins\\speechHistoryExplorer\n"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:46
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:153
+msgid "Speech History Explorer"
+msgstr "Puhehistorian selain"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:65
+msgid ""
+"Copy the currently selected speech history Explorer item to the clipboard, "
+"which by default will be the most recently spoken text by NVDA."
+msgstr ""
+"Kopioi leikepöydälle valittuna oleva puhehistorian kohde, joka on "
+"oletusarvoisesti viimeisin NVDA:n puhuma teksti."
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:79
+msgid "Review the previous item in NVDA's speech history."
+msgstr "Tarkastele NVDA:n puhehistorian edellistä kohdetta."
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:95
+msgid "Review the next item in NVDA's speech history."
+msgstr "Tarkastele NVDA:n puhehistorian seuraavaa kohdetta."
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:111
+msgid "Opens a dialog showing all most recent items spoken by NVDA"
+msgstr ""
+"Avaa valintaikkunan, joka näyttää kaikki viimeisimmät NVDA:n puhumat kohteet"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:158
+msgid ""
+"&Maximum number of history entries (requires NVDA restart to take effect)"
+msgstr ""
+"&Historiakohteiden enimmäismäärä (edellyttää NVDA:n uudelleenkäynnistystä)"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:161
+msgid "Trim whitespace from &start when copying text"
+msgstr "Poista kopioitaessa tyhjämerkit tekstin a&lusta"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:164
+msgid "Trim whitespace from &end when copying text"
+msgstr "Poista kopioitaessa tyhjämerkit tekstin l&opusta"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:167
+msgid "Beep when performing actions"
+msgstr "Piippaa toimintoja suoritettaessa"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:170
+msgid "Beep left or right when no more older or newer elements are available"
+msgstr ""
+"Piiippaa vasemmalla tai oikealla, kun vanhempia tai uudempia kohteita ei ole "
+"enempää saatavilla"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:208
+msgid "Speech history items"
+msgstr "Puhehistorian kohteet"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:232
+msgid "&Search"
+msgstr "&Hae"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:240
+msgid "History list"
+msgstr "Historialuettelo"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:266
+msgid "&Copy item"
+msgstr "&Kopioi kohde"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:282
+msgid "Copy &all"
+msgstr "Kopioi k&aikki"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:286
+msgid "C&lean history"
+msgstr "T&yhjennä historia"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:290
+msgid "&Refresh history"
+msgstr "&Päivitä historia"
+
+#: ..\..\..\globalPlugins\speechHistoryExplorer/__init__.py:294
+msgid "C&lose"
+msgstr "S&ulje"
+
+#~ msgid ""
+#~ "This add-on allows you to review the most recent strings spoken by NVDA, "
+#~ "by default using NVDA+Shift+F11 and NVDA+Shift+F12. \n"
+#~ "\tAdditionally, you can copy any spoken item to the clipboard by pressing "
+#~ "NVDA+Control+F12 and shows a dialog of all stored spoken elements with "
+#~ "NVDA+Alt+f12.\n"
+#~ "\tUse the settings panel for the add-on to increase or decrease the "
+#~ "maximum number of stored history entries, and decide whether whitespace "
+#~ "should be trimmed from the start or end of text.\n"
+#~ "\tUse NVDA's Input Gestures dialog to change the supplied keystrokes."
+#~ msgstr ""
+#~ "Tämän lisäosan avulla voit tarkastella uusimpia NVDA:n puhumia "
+#~ "merkkijonoja, oletusarvoisesti käyttäen NVDA+Vaihto+F11- ja NVDA+Vaihto"
+#~ "+F12-näppäinkomentoja. \n"
+#~ "\tLisäksi voit kopioida minkä tahansa puhutun kohteen leikepöydälle "
+#~ "painamalla NVDA+Ctrl+F12 sekä avata valintaikkunan, joka sisältää kaikki "
+#~ "tallennetut NVDA:n puhumat kohteet painamalla NVDA+Alt+F12.\n"
+#~ "\tKäytä lisäosan asetuspaneelia tallennettavien historiakohteiden "
+#~ "enimmäismäärän kasvattamiseen tai pienentämiseen sekä sen päättämiseen, "
+#~ "poistetaanko tyhjätilamerkit tekstin alusta tai lopusta.\n"
+#~ "\tKäytä NVDA:n Näppäinkomennot-valintaikkunaa näppäinkomentojen "
+#~ "vaihtamiseen."
