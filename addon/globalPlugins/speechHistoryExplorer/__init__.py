@@ -148,7 +148,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 		self.history_pos = 0
 
 
-class speechHistoryExplorerSettingsPanel(gui.SettingsPanel):
+class speechHistoryExplorerSettingsPanel(gui.settingsDialogs.SettingsPanel):
 	# Translators: the label/title for the Speech History Explorer settings panel.
 	title = _('Speech History Explorer')
 
