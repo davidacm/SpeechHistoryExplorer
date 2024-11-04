@@ -1,6 +1,6 @@
 # Puhehistorian selain
 
-Tämä on alun perin vuonna 2012 Tyler Spiveyn luoman ja James Scholesin toimesta ylläpidetyn Puhehistoria-lisäosan haara. Tähän versioon on lisätty joitakin ominaisuuksia.
+Tämä on alun perin vuonna 2012 Tyler Spiveyn luoman ja James Scholesin ylläpitämän Puhehistoria-lisäosan haara. Tähän versioon on lisätty joitakin ominaisuuksia.
 Lisäksi näppäinyhdistelmät on päivitetty, sillä alkuperäiset yhdistelmät saattoivat aiheuttaa ristiriitoja muiden sovellusten kanssa, koska ne olivat hyvin yleisesti käytettyjä, esim. F12.
 
 ## Ominaisuudet
